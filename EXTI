@@ -1,0 +1,8 @@
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
+  static uint32_t temp;
+  if(GPIO_Pin == GPIO_PIN_13) {
+    if((HAL_GetTick()-temp)>100) HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);  // 100ms Chattering
+  }
+  while(HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13)==GPIO_PIN_RESET);
+  temp = HAL_GetTick();
+}
