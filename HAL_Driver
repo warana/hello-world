@@ -1,6 +1,82 @@
+/*
+/* HAL 드라이버 유용한 함수 기능들
+/*
 /* uart 장치 자료 송수신(폴링방식)----------------------------------*/
 // uart 장치로 자료 전송
 // 1번인자는 uart.c 에 선언된 구조체 변수, 2번인자는 전송할 자료가 저장된 변수 또는  값, 3번인자는 전송할 바이트 단위 크기, 4번인자는 타임아웃 시간
 HAL_UART_Transmit(&huart1, &va, 1, 10);
 // uart 장치로부터 자료 정상적으로 받으면 if문안에서 처리
 if(HAL_UART_Receive(&huart1, &va, 1, 10)==HAL_OK){}
+
+
+/* uart 장치 자료 송수신(인터럽트방식)----------------------------------*/
+// CUBE MX 에서 'UARTx global interrupt' 를 enabled 해준다. 
+// 'stm32f4xx_hal_uart.c' 파일에 정의된 아래 함수를 'main.c'파일에 정의하여 사용한다.
+// 메인함수에 'HAL_UART_Receive_IT(&hauart1, &data1, 1);' 추가한다.
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+  if(&huart1->Instance == USART1)
+  {
+    HAL_UART_Receive_IT(&hauart1, &data1, 1);
+  }
+}
+
+
+/* Timer interrupt
+// CUBE MX에서 모드 설정 및 환경 설정해준다. 'TIMx global interrupt'를 enabled 해준다.
+// 필요하면 PWM 채널 설정해준다.
+// 'stm32f4xx_hal_tim.c' 파일에 정의된 아래 함수를 'main.c'파일에 정의하여 사용한다.
+// 메인함수에 'HAL_TIM_Base_Start_IT(&htim7);' 추가한다.
+
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+	if(htim->Instance == TIM7)
+	{
+		HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_7);
+	}
+}
+
+
+/* 외부인터럽트
+// CUBE MX GPIO 모드환경설정에서 'EXTI line[x:x] interrupt' enabled 해준다.
+// 'stm32f4xx_hal_gpio.c' 파일에 정의된 아래 함수를 'main.c'파일에 정의하여 사용한다.
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+	static uint32_t temp;
+	static uint8_t i=0;
+  
+	if(GPIO_Pin == GPIO_PIN_11)
+	{
+		if((HAL_GetTick()-temp)>100)
+		{
+			imsi2+=10;
+			if(imsi2>=300) imsi2=0;
+
+			HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_6);
+
+			DISPLAY_Clear();
+			CLCD_Write(i);
+			i++;
+		}
+	} 
+
+
+/* PWM
+// CUBE MX에서 모드 설정에서 소스클럭,PWM 채널 설정 및 환경 설정해준다.
+// 필요하면 'TIMx global interrupt'를 enabled 해준다.
+//메인함수에 'HAL_TIM_PWM_Start(&htim3,TIM_CHANNEL_1);' 추가한다.
+  while (1)
+  {
+	  TIM3->ARR += imsi2; // 타이머 인터럽트 주기 실시간 변경
+    TIM3->CCR += imsi1; // 타이머 인터럽트 듀티비 실시간 변경
+    
+	  if(TIM3->ARR >= 42000)
+	  {
+		  TIM3->ARR = 0;
+	  }
+	  Delay_us(10000);
+  }
+ 
+ 
+ 
+ 
