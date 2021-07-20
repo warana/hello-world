@@ -37,7 +37,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 }
 
 
-/* 외부인터럽트
+/* external interrupt
 // CUBE MX GPIO 모드환경설정에서 'EXTI line[x:x] interrupt' enabled 해준다.
 // 'stm32f4xx_hal_gpio.c' 파일에 정의된 아래 함수를 'main.c'파일에 정의하여 사용한다.
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
@@ -63,12 +63,12 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 
 /* PWM
 // CUBE MX에서 모드 설정에서 소스클럭,PWM 채널 설정 및 환경 설정해준다.
-// 필요하면 'TIMx global interrupt'를 enabled 해준다.
+// 인터럽트가 필요하면 'TIMx global interrupt'를 enabled 해준다.
 //메인함수에 'HAL_TIM_PWM_Start(&htim3,TIM_CHANNEL_1);' 추가한다.
   while (1)
   {
-	  TIM3->ARR += imsi2; // 타이머 인터럽트 주기 실시간 변경
-    TIM3->CCR += imsi1; // 타이머 인터럽트 듀티비 실시간 변경
+	TIM3->ARR += imsi2; // PWM 주기 실시간 변경
+    	TIM3->CCR += imsi1; //  듀티비 실시간 변경
     
 	  if(TIM3->ARR >= 42000)
 	  {
