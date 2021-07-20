@@ -68,7 +68,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
   while (1)
   {
 	TIM3->ARR += imsi2; // PWM 주기 실시간 변경
-    	TIM3->CCR += imsi1; //  듀티비 실시간 변경
+    	TIM3->CCRx += imsi1; //  듀티비 실시간 변경
     
 	  if(TIM3->ARR >= 42000)
 	  {
