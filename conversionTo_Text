@@ -1,0 +1,44 @@
+// ADC 에서 입력된 정수 입력값을 출력하기 위해 문자로 변환한다. 
+#include <stdio.h>
+
+void conversion_NUM(char * nn, int n);
+void test(int * p);
+
+
+int main(void)
+{
+	char nn[5];
+	int n=23;
+	int p;
+	int i=0;
+	
+	conversion_NUM(nn,n);
+	test(&p);
+	
+	printf("\n숫자는 ::::: %d\n",p);
+	
+	printf("\n숫자는 ");
+	for(i=0;i<5;i++)
+	{
+		printf("%c",nn[i]);
+	}
+	printf("입니다.\n");
+	
+	return 0;
+}
+
+void test(int * p)
+{
+	*p=999;
+}
+
+void conversion_NUM(char * nn, int n)
+{
+	int i=0;
+	
+	nn[0] = (n/10000)+0x30;
+	nn[1] = ((n/1000)%10)+0x30;
+	nn[2] = ((n/100)%10)+0x30;
+	nn[3] = ((n%100)/10)+0x30;
+	nn[4] = (n%10)+0x30;
+}
