@@ -123,8 +123,20 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 // 1번인자 구조체 변수의 주소,
 // 2번인자 출력할 채널선택, 두개의 채널중 하나.
 // 아래 함수로 필요한 값을 출력.
+// HAL_DAC_SetValue(&hdac, DAC_CHANNEL_1, DAC_ALIGN_12B_R, cnt);
 // 1번인자 구조체 변수의 주소, 2번인자 출력채널, 3번인자 정렬방식, 4번인자 출력값.
-
- 	  HAL_DAC_SetValue(&hdac, DAC_CHANNEL_1, DAC_ALIGN_12B_R, 4070);
-
-
+  while (1)
+  {
+	  if((HAL_GetTick()-imsi2)>100) // 0.1초마다 if 문 처리.
+	  {
+		  if(cnt>4095)
+		  {
+			  cnt=0;
+		  } else
+		  {
+			  HAL_DAC_SetValue(&hdac, DAC_CHANNEL_1, DAC_ALIGN_12B_R, cnt);
+		  	  cnt+=100;
+		  }
+		  imsi2 = HAL_GetTick();
+	  }
+  }
