@@ -114,3 +114,17 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 	  }
   }
 }
+
+
+/* DAC
+// 디지털 값을 아날로그 신호로 출력한다.
+// CUBE MX DAC 모드 및 환경 설정한다.
+// 메인함수에 "  HAL_DAC_Start(&hdac, DAC_CHANNEL_1);" 추가한다.
+// 1번인자 구조체 변수의 주소,
+// 2번인자 출력할 채널선택, 두개의 채널중 하나.
+// 아래 함수로 필요한 값을 출력.
+// 1번인자 구조체 변수의 주소, 2번인자 출력채널, 3번인자 정렬방식, 4번인자 출력값.
+
+ 	  HAL_DAC_SetValue(&hdac, DAC_CHANNEL_1, DAC_ALIGN_12B_R, 4070);
+
+
