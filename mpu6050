@@ -1,0 +1,78 @@
+/*
+ * mpu6050.c
+ *
+ *  Created on: Jul 29, 2021
+ *      Author: k2
+ */
+
+/*
+ * MPU6050
+ * Device Address : 0x68,  AD0 핀으로 주소변경가능 : AD0 핀 SET 시키면 0x69
+ * 초기화 순서
+ * 1. 장치리셋하기. Register Address : 0x6B, bit7 : DEVICE_RESET
+ *    장치를 리셋하면 초기화 값 : 0x40
+ * 2. 슬립모드에서 깨우기. Register Address : 0x6B, bit6 : SLEEP
+ *    초기값 상태는 sleep mode이다.
+ * 3. 클럭소스 설정하기. Register Address : 0x6B, bit2-0 : CLKSEL[2:0]
+ *    !! datasheet에서는 안정적인 동작을 위하여 자이로스코프 또는 외부클럭을 사용하도록 권장하고 있음.
+ *    CLKSEL Clock Source
+ *       0    Internal 8MHz oscillator
+ *       1    PLL with X axis gyroscope reference
+ *       2    PLL with Y axis gyroscope reference
+ *       3    PLL with Z axis gyroscope reference
+ *       4    PLL with external 32.768kHz reference
+ *       5    PLL with external 19.2MHz reference
+ *       6    Reserved
+ *       7    Stops the clock and keeps the timing generator in reset
+ * 4. 디지털로우패스필터 설정하기(선택사항). Register Address : 0x1A, bit2-0 : DLPF_CFG
+ *    !! DLPF를 RESET하면 (DLPF_CFG[2:0] 값은 0 또는 7) Gyroscope Output Rate(자이로스코프 출력속도) = 8Khz.
+ *       DLPF를 SET하면 (DLPF_CFG[2:0] 값은 2에서 6사이) Gyroscope Output Rate(자이로스코프 출력속도) = 1Khz.
+ *       Accelerometer는 항상 1khz.
+ * 5. 샘플 레이트 설정하기. Register Address : 0x19, bit7-0 : SMPLRT_DIV
+ *    !! 4번 DLPF 설정에 따라 Gyroscope Output Rate(자이로스코프 출력속도)가 다르므로 주의
+ *       Sample Rate = Gyroscope Output Rate / (1 + SMPLRT_DIV)
+ * 6. 자이로 측정범위 설정하기. Register Address : 0x1B, bir4-3 : FS_SEL
+ *    FS_SEL Full Scale Range
+ *      0    ± 250 °/s
+ *      1    ± 500 °/s
+ *      2    ± 1000 °/s
+ *      3    ± 2000 °/s
+ * 7. 가속도 측정범위 설정하기. Register Address : 0x1C,
+ *
+ * 3.
+ */
+
+  uint32_t imsi=0;
+  uint8_t imsi2=0x0A;
+  uint8_t MPU_6050_WHO_AM_I = 0;
+
+  uint8_t eeprom[10]={0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09};
+  uint8_t accel_out[6]={};
+  uint8_t gyro_out[6]={};
+
+
+/* MPU_6050 init ------------------------------------------------------------------------- */
+  HAL_Delay(200);
+  HAL_I2C_Mem_Write(&hi2c2, ((uint8_t)(0x68<<1)|(uint8_t)0x01), 0x6B, I2C_MEMADD_SIZE_8BIT, (uint8_t *)0x80, 1, 10); // MPU_6050 reset
+  HAL_Delay(200);
+  HAL_I2C_Mem_Write(&hi2c2, 0xD1, 0x6B, I2C_MEMADD_SIZE_8BIT, (uint8_t *)0x00, 1, 10); // Internal 8MHz oscillator
+//  HAL_Delay(100);
+//  HAL_I2C_Mem_Write(&hi2c2, 0xD1, 0x6B, I2C_MEMADD_SIZE_8BIT, (uint8_t *)0x01, 1, 10); // PLL with X axis gyroscope reference
+  HAL_I2C_Mem_Write(&hi2c2, 0xD1, 0x1A, I2C_MEMADD_SIZE_8BIT, (uint8_t *)0x03, 1, 10); // Configuration y DLPF_CFG
+  HAL_I2C_Mem_Write(&hi2c2, 0xD1, 0x19, I2C_MEMADD_SIZE_8BIT, (uint8_t *)0x04, 1, 10); // Sample Rate Divider
+  HAL_I2C_Mem_Write(&hi2c2, 0xD1, 0x1B, I2C_MEMADD_SIZE_8BIT, (uint8_t *)0x08, 1, 10); // Gyroscope Configuration
+  HAL_I2C_Mem_Write(&hi2c2, 0xD1, 0x1C, I2C_MEMADD_SIZE_8BIT, (uint8_t *)0x08, 1, 10); // Accelerometer Configuration
+/* End of MPU_6050 init ------------------------------------------------------------------------- */
+
+  while (1)
+  {
+	  HAL_Delay(200);
+
+	  // Accelerometer Measurements
+	  HAL_I2C_Mem_Read(&hi2c2, 0xD0, 0x3B, I2C_MEMADD_SIZE_8BIT, &accel_out[0], 6, 10);
+	  // Gyroscope Measurements
+	  HAL_I2C_Mem_Read(&hi2c2, 0xD0, 0x43, I2C_MEMADD_SIZE_8BIT, &gyro_out[0], 6, 10);
+	  // Device ID
+	  HAL_I2C_Mem_Read(&hi2c2, 0xD0, 0x75, I2C_MEMADD_SIZE_8BIT, &MPU_6050_WHO_AM_I, 1, 10);
+//	  HAL_I2C_Mem_Read(&hi2c2, ((uint8_t)(0x68<<1)&(uint8_t)0xFE), 0x75, I2C_MEMADD_SIZE_8BIT, &MPU_6050_WHO_AM_I, 1, 10);
+
