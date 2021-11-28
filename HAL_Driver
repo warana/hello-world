@@ -15,7 +15,7 @@ if(HAL_UART_Receive(&huart1, &va, 1, 10)==HAL_OK){}
 // 메인함수에 'HAL_UART_Receive_IT(&hauart1, &data1, 1);' 추가한다.
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
-  if(&huart1->Instance == USART1)
+  if(huart->Instance == USART1)
   {
     HAL_UART_Receive_IT(&hauart1, &data1, 1);
   }
